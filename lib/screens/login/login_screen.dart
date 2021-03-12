@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:med_tracker/home/home_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:med_tracker/screens/home/home_screen.dart';
+import 'package:med_tracker/services/service_providers.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -42,9 +45,14 @@ class LoginScreen extends StatelessWidget {
                       .button
                       .copyWith(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
-                onPressed: () => Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (_) => HomeScreen())),
-              )
+                onPressed: () => context
+                    .read(authServiceProvider)
+                    .anonymLogin()
+                    .whenComplete(() {
+                  Navigator.pushReplacement(
+                      context, MaterialPageRoute(builder: (_) => HomeScreen()));
+                }),
+              ),
             ],
           ),
         ),

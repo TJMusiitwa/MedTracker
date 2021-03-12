@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:med_tracker/medication_form/medication_form_screen.dart';
-import 'package:med_tracker/profile/profile_screen.dart';
+import 'package:med_tracker/screens/medication_form/medication_form_screen.dart';
+import 'package:med_tracker/screens/profile/profile_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:med_tracker/services/service_providers.dart';
 
-class HomeScreen extends StatelessWidget {
-  static String greeting = DateTime.now().hour >= 6 && DateTime.now().hour < 12
-      ? 'Good Morning,\nUser 10234'
-      : DateTime.now().hour >= 12 && DateTime.now().hour <= 18
-          ? 'Good Afternoon\nUser 10234'
-          : 'Good Evening\nUser 10234';
+class HomeScreen extends ConsumerWidget {
+  //final String userID;
+  // static String greeting = DateTime.now().hour >= 6 && DateTime.now().hour < 12
+  //     ? 'Good Morning,\nUser$userID'
+  //     : DateTime.now().hour >= 12 && DateTime.now().hour <= 18
+  //         ? 'Good Afternoon\nUser 10234'
+  //         : 'Good Evening\nUser 10234';
+
+  String greetingFunc(String userID) {
+    DateTime.now().hour >= 6 && DateTime.now().hour < 12
+        ? 'Good Morning,\nUser $userID'
+        : DateTime.now().hour >= 12 && DateTime.now().hour <= 18
+            ? 'Good Afternoon\nUser $userID'
+            : 'Good Evening\nUser $userID';
+    return userID;
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ScopedReader watch) {
+    var currUser = watch(firebaseAuthProvider).currentUser;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -21,10 +34,11 @@ class HomeScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(greeting,
+                  Text(greetingFunc(currUser.uid),
+                      softWrap: true,
                       style: Theme.of(context)
                           .textTheme
-                          .headline5
+                          .caption
                           .copyWith(fontWeight: FontWeight.bold)),
                   Spacer(),
                   Hero(

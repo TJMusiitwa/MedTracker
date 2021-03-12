@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:med_tracker/login/login_screen.dart';
+import 'package:med_tracker/screens/login/login_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:med_tracker/services/service_providers.dart';
 
 class ProfileScreen extends StatelessWidget {
   @override
@@ -68,11 +70,18 @@ class ProfileScreen extends StatelessWidget {
                         fontSize: 20,
                       ),
                 ),
-                onPressed: () => Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => LoginScreen()),
-                  ModalRoute.withName('/'),
-                ),
+                onPressed: () {
+                  context
+                      .read(authServiceProvider)
+                      .anonymSignOut()
+                      .whenComplete(() {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => LoginScreen()),
+                      ModalRoute.withName('/'),
+                    );
+                  });
+                },
               ),
               SizedBox(
                 height: 15,
