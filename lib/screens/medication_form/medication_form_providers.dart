@@ -11,9 +11,11 @@ final dosageEntryController =
   return TextEditingController(text: '');
 });
 
-final otherDetailsEntryController =
+final treatmentLengthEntryController =
     Provider.autoDispose<TextEditingController>((ref) {
   return TextEditingController(text: '');
 });
 
-final reminderSwitchProvider = StateProvider<bool>((ref) => false);
+final reminderSwitchProvider = StateProvider.autoDispose<bool>((ref) => false);
+
+final frequencyProvider = StateProvider<String>((ref) => '');

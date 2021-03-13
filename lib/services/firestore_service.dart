@@ -1,15 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:med_tracker/medication_model.dart';
+import 'package:med_tracker/models/medication_model.dart';
 import 'package:med_tracker/services/service_providers.dart';
 
 abstract class BaseMedicationClass {
-  Future<List<Medication>> readMedication({@required String userId});
+  Future<List<Medication>> readMedications({@required String userId});
+  Stream<List<Medication>> streamMedications({@required String userId});
+  Stream<Medication> streamMeds({@required String userId});
   Future<void> createMedication(
       {@required String userId, @required Medication medication});
   Future<void> updateMedication(
-      {@required String userId, @required Medication medication});
+      {@required String userId,
+      @required Medication medication,
+      @required String medicationId});
   Future<void> deleteMedication(
+      {@required String userId, @required String medicationId});
+  Future<void> readSingleMedication(
       {@required String userId, @required String medicationId});
 }
 
@@ -23,7 +30,7 @@ class FirestoreService implements BaseMedicationClass {
         .collection('medications')
         .doc(userId)
         .collection('userMedications')
-        .add({'medicationName': medication.medicationName})
+        .add(medication.toJson())
         .then((value) => print(value.id))
         .catchError((error) => print('Failed to add medication: $error'));
   }
@@ -39,25 +46,69 @@ class FirestoreService implements BaseMedicationClass {
   }
 
   @override
-  Future<List<Medication>> readMedication({String userId}) async {
+  // ignore: missing_return
+  Future<List<Medication>> readMedications({String userId}) async {
     try {
       final medList = await _reader(firestoreProvider)
           .collection('medications')
           .doc(userId)
           .collection('userMedications')
           .get();
-    } catch (e) {
+      return medList.docs
+          .map((doc) => Medication.fromJson(doc.data()))
+          .toList();
+    } on FirebaseException catch (e) {
       print(e.toString());
     }
   }
 
   @override
-  Future<void> updateMedication({String userId, Medication medication}) {
+  Future<void> updateMedication(
+      {String userId, Medication medication, String medicationId}) async {
+    await _reader(firestoreProvider)
+        .collection('medications')
+        .doc(userId)
+        .collection('userMedications')
+        .doc(medicationId)
+        .update(medication.toJson());
+  }
+
+  @override
+  Future<void> readSingleMedication({String userId, String medicationId}) {
     return _reader(firestoreProvider)
         .collection('medications')
         .doc(userId)
         .collection('userMedications')
-        .doc(medication.dosage)
-        .update({});
+        .doc(medicationId)
+        .get();
+  }
+
+  @override
+  // ignore: missing_return
+  Stream<List<Medication>> streamMedications({String userId}) {
+    try {
+      _reader(firestoreProvider)
+          .collection('medications')
+          .doc(userId)
+          .collection('userMedications')
+          .snapshots()
+          .map((data) {
+        var retStream = <Medication>[];
+        data.docs
+            .forEach((med) => retStream.add(Medication.fromJson(med.data())));
+        return retStream;
+      });
+    } on FirebaseException catch (e) {
+      print(e.toString());
+    }
+  }
+
+  @override
+  Stream<Medication> streamMeds({String userId}) {
+    _reader(firestoreProvider)
+        .collection('medications')
+        .doc(userId)
+        .collection('userMedications')
+        .snapshots();
   }
 }

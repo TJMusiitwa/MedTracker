@@ -4,7 +4,10 @@ import 'package:med_tracker/models/medication_model.dart';
 import 'package:med_tracker/screens/medication_form/medication_form_providers.dart';
 import 'package:med_tracker/services/service_providers.dart';
 
-class MedicationFormScreen extends ConsumerWidget {
+class MedicationUpdateForm extends ConsumerWidget {
+  final String docId;
+
+  MedicationUpdateForm({this.docId});
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     var nameController = watch(medicationNameEntryController);
@@ -13,67 +16,21 @@ class MedicationFormScreen extends ConsumerWidget {
     var treatmentLengthController = watch(treatmentLengthEntryController);
     var reminder = watch(reminderSwitchProvider).state;
     var currUser = watch(firebaseAuthProvider).currentUser.uid;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add medication'),
+        title: Text('Update Medication'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
         child: Column(
-          //crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            TextFormField(
+            TextField(
               controller: nameController,
               decoration: InputDecoration(
                 labelText: 'Medication Name',
               ),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Please enter your medication';
-                }
-                return null;
-              },
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            DropdownButtonFormField(
-                decoration: InputDecoration(labelText: 'Frequency'),
-                iconEnabledColor: Theme.of(context).accentColor,
-                items: [
-                  DropdownMenuItem(child: Text('Once'), value: '1'),
-                  DropdownMenuItem(child: Text('Twice'), value: '2'),
-                  DropdownMenuItem(child: Text('Thrice'), value: '3'),
-                ],
-                onChanged: (frequencySelected) =>
-                    context.read(frequencyProvider).state = frequencySelected),
-            SizedBox(
-              height: 15,
-            ),
-            TextField(
-              controller: dosageController,
-              decoration:
-                  InputDecoration(labelText: 'Dosage', hintText: '2 pills'),
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            TextField(
-              controller: treatmentLengthController,
-              decoration: InputDecoration(labelText: 'Treatment length'),
-              maxLines: 1,
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            SwitchListTile.adaptive(
-              title: Text('Reminder'),
-              value: reminder,
-              onChanged: (reminderSet) =>
-                  context.read(reminderSwitchProvider).state = reminderSet,
             ),
             ElevatedButton.icon(
               icon: Icon(Icons.save),
@@ -86,7 +43,7 @@ class MedicationFormScreen extends ConsumerWidget {
               onPressed: () {
                 context
                     .read(firestoreService)
-                    .createMedication(
+                    .updateMedication(
                         userId: currUser,
                         medication: Medication(
                             dosage: dosageController.text,

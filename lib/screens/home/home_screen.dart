@@ -1,5 +1,9 @@
+import 'dart:html';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:med_tracker/screens/medication_form/medication_form_screen.dart';
+import 'package:med_tracker/screens/medication_form/medication_form_update.dart';
 import 'package:med_tracker/screens/profile/profile_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:med_tracker/services/service_providers.dart';
@@ -24,9 +28,20 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     var currUser = watch(firebaseAuthProvider).currentUser;
+    // final medList =
+    //     watch(firestoreService).readMedications(userId: currUser.uid);
+    //final medListState = watch(firestoreControllerProvider.state);
+
+    final medicationList = watch(firestoreProvider)
+        .collection('medications')
+        .doc(currUser.uid)
+        .collection('userMedications')
+        .orderBy('uploadTimeStamp', descending: true)
+        .snapshots();
+
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,6 +72,68 @@ class HomeScreen extends ConsumerWidget {
               ),
               SizedBox(
                 height: 10,
+              ),
+              StreamBuilder<QuerySnapshot>(
+                stream: medicationList,
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  return snapshot.data == null
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/no_data.png',
+                                height: 500,
+                                width: 500,
+                                color: Colors.grey.shade400,
+                                colorBlendMode: BlendMode.lighten,
+                              ),
+                              Text(
+                                'No medications available',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    .copyWith(fontSize: 20),
+                              )
+                            ],
+                          ),
+                        )
+                      : ListView(
+                          shrinkWrap: true,
+                          children: snapshot.data.docs.map((data) {
+                            var med = data.data();
+                            return Dismissible(
+                              key: Key(data.id),
+                              background: Container(
+                                child: Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                                ),
+                                color: Colors.red,
+                              ),
+                              onDismissed: (del) {
+                                context.read(firestoreService).deleteMedication(
+                                    userId: currUser.uid,
+                                    medicationId: data.id);
+                              },
+                              child: Card(
+                                child: ListTile(
+                                  title: Text(med['medicationName'] ?? ''),
+                                  subtitle: Text(med['dosage']),
+                                  onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => MedicationUpdateForm(
+                                                docId: data.id,
+                                              ),
+                                          fullscreenDialog: true)),
+                                ),
+                              ),
+                            );
+                          }).toList());
+                },
               ),
             ],
           ),

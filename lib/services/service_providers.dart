@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:med_tracker/controllers/auth_controller.dart';
 import 'package:med_tracker/controllers/firestore_controller.dart';
+import 'package:med_tracker/models/medication_model.dart';
 import 'package:med_tracker/services/auth_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:med_tracker/services/firestore_service.dart';
@@ -31,4 +32,9 @@ final firestoreControllerProvider =
     StateNotifierProvider<FirestoreController>((ref) {
   final user = ref.watch(firebaseAuthProvider).currentUser;
   return FirestoreController(ref.read, user.uid);
+});
+
+final list = StreamProvider.autoDispose<List<Medication>>((ref) {
+  final user = ref.watch(firebaseAuthProvider).currentUser;
+  return ref.watch(firestoreService).streamMedications(userId: user.uid);
 });
