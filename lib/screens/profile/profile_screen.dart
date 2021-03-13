@@ -31,9 +31,15 @@ class ProfileScreen extends StatelessWidget {
                         radius: 50,
                       ),
                     ),
-                    Text(
-                      'Name of user',
-                      style: Theme.of(context).textTheme.headline6,
+                    Consumer(
+                      builder: (context, watch, child) {
+                        var currUser =
+                            watch(firebaseAuthProvider).currentUser.uid;
+                        return Text(
+                          currUser,
+                          style: Theme.of(context).textTheme.headline6,
+                        );
+                      },
                     ),
                   ],
                 ),

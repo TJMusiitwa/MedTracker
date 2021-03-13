@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:med_tracker/screens/medication_form/medication_form_providers.dart';
 
-class MedicationFormScreen extends StatelessWidget {
+class MedicationFormScreen extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ScopedReader watch) {
+    var nameController = watch(medicationNameEntryController);
+    var dosageController = watch(dosageEntryController);
+    var otherDetailsController = watch(otherDetailsEntryController);
+    var reminder = watch(reminderSwitchProvider).state;
     return Scaffold(
       appBar: AppBar(
         title: Text('Add medication'),
@@ -15,6 +21,7 @@ class MedicationFormScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             TextFormField(
+              controller: nameController,
               decoration: InputDecoration(
                 labelText: 'Medication Name',
               ),
@@ -41,6 +48,7 @@ class MedicationFormScreen extends StatelessWidget {
               height: 15,
             ),
             TextField(
+              controller: dosageController,
               decoration:
                   InputDecoration(labelText: 'Dosage', hintText: '2 pills'),
             ),
@@ -48,6 +56,7 @@ class MedicationFormScreen extends StatelessWidget {
               height: 15,
             ),
             TextField(
+              controller: otherDetailsController,
               decoration: InputDecoration(labelText: 'Other Details'),
               maxLines: 3,
             ),
@@ -56,8 +65,9 @@ class MedicationFormScreen extends StatelessWidget {
             ),
             SwitchListTile.adaptive(
               title: Text('Reminder'),
-              value: true,
-              onChanged: (reminderSet) {},
+              value: reminder,
+              onChanged: (reminderSet) =>
+                  context.read(reminderSwitchProvider).state = reminderSet,
             ),
             ElevatedButton.icon(
               icon: Icon(Icons.save),
