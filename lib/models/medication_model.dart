@@ -15,6 +15,7 @@ class Medication {
   final String dosage;
   final String treatmentLength;
   final bool reminder;
+  final String medicationExpiry;
   final DateTime uploadTimeStamp = DateTime.now().toLocal();
 
   Medication(
@@ -23,6 +24,7 @@ class Medication {
       this.dosage,
       this.treatmentLength,
       this.reminder,
+      this.medicationExpiry,
       uploadTimeStamp});
 
   factory Medication.fromJson(Map<String, dynamic> snapshot) => Medication(
@@ -31,6 +33,7 @@ class Medication {
         dosage: snapshot['dosage'] ?? '',
         treatmentLength: snapshot['treatmentLength'] ?? '',
         reminder: snapshot['reminder'] ?? false,
+        medicationExpiry: snapshot['medicationExpiry'],
         uploadTimeStamp:
             snapshot['uploadTimeStamp'] ?? DateTime.now().toLocal(),
       );
@@ -41,6 +44,7 @@ class Medication {
         'dosage': dosage,
         'treatmentLength': treatmentLength,
         'reminder': reminder,
+        'medicationExpiry': medicationExpiry,
         'uploadTimeStamp': uploadTimeStamp
       };
 }

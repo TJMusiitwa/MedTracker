@@ -3,9 +3,10 @@ import 'package:med_tracker/screens/login/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:med_tracker/services/service_providers.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ScopedReader watch) {
+    var currUser = watch(firebaseAuthProvider).currentUser.uid;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -31,27 +32,36 @@ class ProfileScreen extends StatelessWidget {
                         radius: 50,
                       ),
                     ),
-                    Consumer(
-                      builder: (context, watch, child) {
-                        var currUser =
-                            watch(firebaseAuthProvider).currentUser.uid;
-                        return Text(
-                          currUser,
-                          style: Theme.of(context).textTheme.headline6,
-                        );
-                      },
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 25),
+                      child: Text(
+                        currUser,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Divider(color: Colors.transparent, height: 25),
               ListTile(
                 leading: Icon(
                   Icons.outbond,
                   color: Theme.of(context).accentColor,
                 ),
                 title: Text('Export My Data'),
-                onTap: () => null,
+                onTap: () => context
+                    .read(firestoreProvider)
+                    .collection('medications')
+                    .doc(currUser)
+                    .collection('userMedications')
+                    .get()
+                    .then((snapshot) => snapshot.docs.forEach((doc) {
+                          // var encoder = JsonEncoder.withIndent('  ');
+                          // var prettyprint = encoder.convert(doc.data());
+                          // debugPrint(prettyprint);
+                          print(doc.data());
+                        })),
               ),
               ListTile(
                 leading: Icon(
@@ -89,53 +99,6 @@ class ProfileScreen extends StatelessWidget {
                   });
                 },
               ),
-              SizedBox(
-                height: 15,
-              ),
-              ElevatedButton(
-                  onPressed: () => showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Delete Account?'),
-                          content: Text(
-                            'Deleting your account will remove all data associated with this account. \nThis action is irreversiable',
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText1
-                                .copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('No'),
-                              style: TextButton.styleFrom(primary: Colors.blue),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => LoginScreen()),
-                                ModalRoute.withName('/'),
-                              ),
-                              child: Text('Yes'),
-                              style: TextButton.styleFrom(
-                                  primary: Colors.redAccent),
-                            )
-                          ],
-                        );
-                      }),
-                  child: Text(
-                    'Delete Account',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
-                    textStyle: Theme.of(context).textTheme.button.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                  )),
             ],
           ),
         ),

@@ -30,12 +30,7 @@ class MedicationFormScreen extends ConsumerWidget {
               decoration: InputDecoration(
                 labelText: 'Medication Name',
               ),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Please enter your medication';
-                }
-                return null;
-              },
+              textInputAction: TextInputAction.next,
             ),
             SizedBox(
               height: 15,
@@ -44,9 +39,9 @@ class MedicationFormScreen extends ConsumerWidget {
                 decoration: InputDecoration(labelText: 'Frequency'),
                 iconEnabledColor: Theme.of(context).accentColor,
                 items: [
-                  DropdownMenuItem(child: Text('Once'), value: '1'),
-                  DropdownMenuItem(child: Text('Twice'), value: '2'),
-                  DropdownMenuItem(child: Text('Thrice'), value: '3'),
+                  DropdownMenuItem(child: Text('Once a day'), value: '1x'),
+                  DropdownMenuItem(child: Text('Twice a day'), value: '2x'),
+                  DropdownMenuItem(child: Text('Thrice a day'), value: '3x'),
                 ],
                 onChanged: (frequencySelected) =>
                     context.read(frequencyProvider).state = frequencySelected),
@@ -57,14 +52,17 @@ class MedicationFormScreen extends ConsumerWidget {
               controller: dosageController,
               decoration:
                   InputDecoration(labelText: 'Dosage', hintText: '2 pills'),
+              textInputAction: TextInputAction.next,
             ),
             SizedBox(
               height: 15,
             ),
             TextField(
               controller: treatmentLengthController,
-              decoration: InputDecoration(labelText: 'Treatment length'),
+              decoration: InputDecoration(
+                  labelText: 'Treatment length', suffixText: 'days'),
               maxLines: 1,
+              keyboardType: TextInputType.number,
             ),
             SizedBox(
               height: 15,
@@ -94,6 +92,13 @@ class MedicationFormScreen extends ConsumerWidget {
                             medicationName: nameController.text,
                             treatmentLength: treatmentLengthController.text,
                             reminder: reminder,
+                            medicationExpiry: DateTime.now()
+                                .add(Duration(
+                                    days: int.tryParse(
+                                        treatmentLengthController.text)))
+                                .toLocal()
+                                .toString()
+                                .split(' ')[0],
                             uploadTimeStamp: DateTime.now().toLocal()))
                     .whenComplete(() => Navigator.pop(context));
                 //Navigator.pop(context);

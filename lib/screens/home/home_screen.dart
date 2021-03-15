@@ -1,7 +1,6 @@
-import 'dart:html';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:med_tracker/screens/history/history_screen.dart';
 import 'package:med_tracker/screens/medication_form/medication_form_screen.dart';
 import 'package:med_tracker/screens/medication_form/medication_form_update.dart';
 import 'package:med_tracker/screens/profile/profile_screen.dart';
@@ -17,12 +16,13 @@ class HomeScreen extends ConsumerWidget {
   //         : 'Good Evening\nUser 10234';
 
   String greetingFunc(String userID) {
-    DateTime.now().hour >= 6 && DateTime.now().hour < 12
-        ? 'Good Morning,\nUser $userID'
-        : DateTime.now().hour >= 12 && DateTime.now().hour <= 18
-            ? 'Good Afternoon\nUser $userID'
-            : 'Good Evening\nUser $userID';
-    return userID;
+    if (DateTime.now().hour >= 6 && DateTime.now().hour < 12) {
+      return 'Good Morning,\n$userID';
+    } else if (DateTime.now().hour >= 12 && DateTime.now().hour <= 18) {
+      return 'Good Afternoon\n$userID';
+    } else {
+      return 'Good Evening\n$userID';
+    }
   }
 
   @override
@@ -48,14 +48,28 @@ class HomeScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(greetingFunc(currUser.uid),
                       softWrap: true,
                       style: Theme.of(context)
                           .textTheme
-                          .caption
+                          .button
                           .copyWith(fontWeight: FontWeight.bold)),
                   Spacer(),
+                  IconButton(
+                    icon: Icon(
+                      Icons.history,
+                      size: 30,
+                      color: Theme.of(context).accentColor,
+                    ),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => HistoryScreen(),
+                      ),
+                    ),
+                  ),
                   Hero(
                     tag: 'UserID',
                     transitionOnUserGestures: true,
@@ -119,9 +133,22 @@ class HomeScreen extends ConsumerWidget {
                                     medicationId: data.id);
                               },
                               child: Card(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5)),
                                 child: ListTile(
                                   title: Text(med['medicationName'] ?? ''),
-                                  subtitle: Text(med['dosage']),
+                                  subtitle: Text(
+                                      'Prescription: ${med['frequency']}${med['dosage']}\nTreatment Duration: ${med['treatmentLength']} days'),
+                                  isThreeLine: true,
+                                  trailing: med['reminder'] == true
+                                      ? Icon(
+                                          Icons.notifications_active,
+                                          color: Colors.green,
+                                        )
+                                      : Icon(
+                                          Icons.notifications_off,
+                                          color: Colors.red,
+                                        ),
                                   onTap: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
