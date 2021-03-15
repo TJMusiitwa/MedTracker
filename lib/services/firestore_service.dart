@@ -7,7 +7,7 @@ import 'package:med_tracker/services/service_providers.dart';
 abstract class BaseMedicationClass {
   Future<List<Medication>> readMedications({@required String userId});
   Stream<List<Medication>> streamMedications({@required String userId});
-  Stream<Medication> streamMeds({@required String userId});
+
   Future<void> createMedication(
       {@required String userId, @required Medication medication});
   Future<void> updateMedication(
@@ -101,14 +101,5 @@ class FirestoreService implements BaseMedicationClass {
     } on FirebaseException catch (e) {
       print(e.toString());
     }
-  }
-
-  @override
-  Stream<Medication> streamMeds({String userId}) {
-    _reader(firestoreProvider)
-        .collection('medications')
-        .doc(userId)
-        .collection('userMedications')
-        .snapshots();
   }
 }

@@ -22,16 +22,14 @@ class HistoryScreen extends ConsumerWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: historyList,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          return snapshot.data == null
+          return snapshot.data.docs.isEmpty
               ? Center(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Image.asset(
                         'assets/no_data.png',
                         height: 500,
-                        width: 500,
+                        width: 300,
                         color: Colors.grey.shade400,
                         colorBlendMode: BlendMode.lighten,
                       ),
