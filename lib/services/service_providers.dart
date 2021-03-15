@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:med_tracker/models/medication_model.dart';
 import 'package:med_tracker/services/auth_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:med_tracker/services/firestore_service.dart';
@@ -22,8 +21,3 @@ final authStateProvider = StreamProvider<User>(
 
 final firestoreService =
     Provider<FirestoreService>((ref) => FirestoreService(ref.read));
-
-final list = StreamProvider.autoDispose<List<Medication>>((ref) {
-  final user = ref.watch(firebaseAuthProvider).currentUser;
-  return ref.watch(firestoreService).streamMedications(userId: user.uid);
-});

@@ -18,16 +18,4 @@ class AuthService {
 
   Future<void> anonymSignOut() async =>
       await _reader(firebaseAuthProvider).signOut();
-
-  Future<void> deleteUserData() async {
-    try {
-      await _reader(firebaseAuthProvider).currentUser.delete();
-    } catch (e) {
-      if (e.code == 'requires-recent-login') {
-        print(
-            'The user must reauthenticate before this operation can be executed.');
-      }
-    }
-    ;
-  }
 }
