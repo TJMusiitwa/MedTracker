@@ -22,6 +22,14 @@ class HistoryScreen extends ConsumerWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: historyList,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData &&
+              snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          }
           return snapshot.data.docs.isEmpty
               ? Center(
                   child: Column(

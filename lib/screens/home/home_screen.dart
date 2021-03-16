@@ -92,6 +92,14 @@ class HomeScreen extends ConsumerWidget {
                   stream: medicationList,
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData &&
+                        snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(snapshot.error.toString()),
+                      );
+                    }
                     return snapshot.data.docs.isEmpty
                         ? Center(
                             child: Column(
