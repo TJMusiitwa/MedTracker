@@ -188,7 +188,7 @@ class HomeScreen extends ConsumerWidget {
         icon: Icon(Icons.add),
         label: Text('Add medication'),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
